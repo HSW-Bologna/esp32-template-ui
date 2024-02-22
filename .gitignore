@@ -14,6 +14,7 @@ sdkconfig.h
 export.sh
 *.log
 
+managed_components
 build/
 sdkconfig.old
 *.old
