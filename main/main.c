@@ -13,13 +13,13 @@
 #include "bsp/system.h"
 
 
-static void display_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map);
-static void touch_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data);
+static void display_flush(lv_display_t *display, const lv_area_t *area, unsigned char *px_map);
+static void touch_read(struct _lv_indev_t *indev, lv_indev_data_t *data);
 
 
 static const char *TAG = "Main";
 
-static const int    DISPLAY_HORIZONTAL_PIXELS = 320;
+static const int    DISPLAY_HORIZONTAL_PIXELS = 480;
 static const size_t LV_BUFFER_SIZE            = DISPLAY_HORIZONTAL_PIXELS * 25;
 
 
@@ -40,6 +40,9 @@ void app_main(void) {
     lv_obj_set_size(obj, 100, 100);
     lv_obj_center(obj);
 
+    lv_obj_t *lbl = lv_label_create(obj);
+    lv_label_set_text(lbl, "Ciao");
+
     ESP_LOGI(TAG, "Begin main loop");
     for (;;) {
         view_manage();
@@ -48,16 +51,19 @@ void app_main(void) {
 }
 
 
-static void display_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *color_map) {
-    tft_display_flush(area->x1, area->y1, area->x2, area->y2, color_map);
+static void display_flush(lv_display_t *display, const lv_area_t *area, unsigned char *px_map) {
+    (void)display;
+    tft_display_flush(area->x1, area->y1, area->x2, area->y2, px_map);
 }
 
 
-static void touch_read(struct _lv_indev_drv_t *indev_drv, lv_indev_data_t *data) {
+static void touch_read(struct _lv_indev_t *indev_drv, lv_indev_data_t *data) {
+    (void)indev_drv;
+
     int32_t x = 0;
     int32_t y = 0;
 
-    if (tft_touch_read(&x, &y)) {
+    if (tft_touch_read(&y, &x)) {
         data->state = LV_INDEV_STATE_PRESSED;
     } else {
         data->state = LV_INDEV_STATE_RELEASED;

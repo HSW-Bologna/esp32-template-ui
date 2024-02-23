@@ -62,7 +62,7 @@ void tft_display_init(uint32_t buffer_size, void (*notify_transaction_done)(void
     ESP_ERROR_CHECK(esp_lcd_panel_reset(lcd_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(lcd_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_invert_color(lcd_handle, false));
-    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(lcd_handle, false));
+    ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(lcd_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(lcd_handle, true, false));
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(lcd_handle, 0, 0));
 #if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
