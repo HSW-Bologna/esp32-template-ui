@@ -1,8 +1,8 @@
+#include <assert.h>
 #include <esp_log.h>
 #include <lvgl.h>
 #include "bsp/tft/display.h"
 #include "bsp/tft/touch.h"
-#include "esp_heap_caps.h"
 #include "view.h"
 #include "services/tick.h"
 
@@ -26,7 +26,8 @@ void view_init(uint32_t buffer_size,
     lv_init();
 
     ESP_LOGI(TAG, "Allocating %zu bytes for LVGL buffer", (size_t)buffer_size * sizeof(lv_color_t));
-    lv_buf_1 = (lv_color_t *)heap_caps_malloc(buffer_size * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    lv_buf_1 = (lv_color_t *)malloc(buffer_size * sizeof(lv_color_t));
+    assert(lv_buf_1);
 
     ESP_LOGI(TAG, "Creating LVGL display buffer");
     display = lv_display_create(DISPLAY_HORIZONTAL_PIXELS, DISPLAY_VERTICAL_PIXELS);

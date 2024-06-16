@@ -43,7 +43,8 @@ def generate_sdkconfig_header(target, source, env):
             if sym.type == kconfiglib.BOOL and sym.str_value == 'y':
                 content += "#define CONFIG_{} 1\n".format(key)
             elif sym.type == kconfiglib.INT:
-                content += "#define CONFIG_{} {}\n".format(key, sym.str_value)
+                if len(sym.str_value) > 0:
+                    content += "#define CONFIG_{} {}\n".format(key, sym.str_value)
             elif sym.type == kconfiglib.STRING:
                 if key in ['LV_USER_DATA_FREE', 'LV_MEM_CUSTOM_FREE', 'LV_MEM_CUSTOM_ALLOC', 'LV_TICK_CUSTOM_SYS_TIME_EXPR']:
                     value = sym.str_value.replace('"', '')
@@ -62,6 +63,7 @@ PROGRAM = "app.exe" if MINGW else "app"
 MAIN = "main"
 SIMULATOR = 'simulator'
 COMPONENTS = "components"
+LVGL = f'{COMPONENTS}/lvgl'
 FREERTOS = f'{SIMULATOR}/freertos-simulator'
 CJSON = f'{SIMULATOR}/cJSON'
 B64 = f'{SIMULATOR}/b64'
@@ -74,16 +76,16 @@ CFLAGS = [
     "-O0",
     "-DLV_CONF_INCLUDE_SIMPLE",
     '-DprojCOVERAGE_TEST=1',
+    "-DLV_USE_X11=1",
     "-Wno-unused-parameter",
     "-static-libgcc",
     "-static-libstdc++",
 ]
-LDLIBS = ["-lmingw32", "-lSDL2main",
-          "-lSDL2"] if MINGW else ["-lSDL2"] + ['-lpthread']
+LDLIBS = ["-lX11", "-lm", '-lpthread']
 
 CPPPATH = [
     COMPONENTS, f'{SIMULATOR}/port', f'#{MAIN}',
-    f"#{MAIN}/config", f"#{SIMULATOR}", B64, CJSON
+    f"#{MAIN}/config", f"#{SIMULATOR}", B64, CJSON, LVGL
 ]
 
 
@@ -120,13 +122,17 @@ def main():
     sources += Glob(f'{SIMULATOR}/port/*.c')
     sources += [File(filename) for filename in Path('main/model').rglob('*.c')]
     sources += [File(filename) for filename in Path('main/config').rglob('*.c')]
-    # sources += [File(filename) for filename in Path('main/view').rglob('*.c')]
+    sources += [File(filename) for filename in Path('main/view').rglob('*.c')]
     sources += [File(filename) for filename in Path('main/controller').rglob('*.c')]
     sources += [File(f'{CJSON}/cJSON.c')]
+    sources += [File(filename)
+                for filename in Path(f"{LVGL}/src").rglob('*.c')]
+    sources += [File(filename)
+                for filename in Path(f"{LVGL}/src").rglob('*.cpp')]   
     sources += [File(f'{B64}/encode.c'), File(f'{B64}/decode.c'), File(f'{B64}/buffer.c')]
 
     prog = env.Program(PROGRAM, sources + freertos)
-    PhonyTargets('run', './simulated', prog, env)
+    PhonyTargets('run', './app', prog, env)
     env.Alias('mingw', prog)
     env.CompilationDatabase('build/compile_commands.json')
 

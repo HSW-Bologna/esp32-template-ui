@@ -7,6 +7,6 @@
 [submodule "simulator/freertos-simulator"]
 	path = simulator/freertos-simulator
 	url = https://github.com/Maldus512/freertos-simulator.git
-[submodule "components/xml_parser/xml.c"]
-	path = components/xml_parser/xml.c
-	url = https://github.com/ooxi/xml.c.git
+[submodule "components/lvgl"]
+	path = components/lvgl
+	url = https://github.com/lvgl/lvgl.git
